@@ -1,0 +1,4 @@
+# novacoin.conf example
+# data_dir and log_file are optional; defaults are used if absent.
+data_dir=C:\Users\YourUser\AppData\Roaming\Novacoin
+log_file=C:\Users\YourUser\AppData\Roaming\Novacoin\novacoin.log
