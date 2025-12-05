@@ -1,7 +1,7 @@
 # Novacoin-Core
 blockchain novacoin core 
 
-🎯 Priorités pour 0.0.2 — ce qui devrait être livré sans débat
+🎯 Priorités pour 0.0.2
 
 Headers‑first sync + robust P2P networking
 
