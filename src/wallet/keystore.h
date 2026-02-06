@@ -9,6 +9,7 @@ public:
     KeyStore() = default;
     std::string GenerateNew();
     std::vector<uint8_t> Sign(const std::string& msghex, const std::string& pubkeyid);
+    bool Verify(const std::string& msghex, const std::string& pubkeyid, const std::vector<uint8_t>& signature);
     std::vector<std::string> ListKeys() const;
     bool LoadFromFile(const std::string& path);
     bool SaveToFile(const std::string& path) const;
