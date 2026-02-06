@@ -6,6 +6,7 @@
 #include "consensus/merkle.h"
 #include "miner/miner.h"
 #include <iostream>
+#include <algorithm>
 #include <vector>
 #include <string>
 #include <fstream>
@@ -32,10 +33,15 @@ int main(int argc, char** argv) {
                       << "  createkey       Generate a new key identifier\n"
                       << "  listkeys        List known key identifiers\n"
                       << "  getkeycount     Print number of known key identifiers\n"
+                      << "  getkeyexists <keyid>\n"
+                      << "                 Check if a key identifier exists in keystore\n"
                       << "  mine            Mine one prototype block\n"
                       << "  show-utxos      Print current UTXO count\n"
+                      << "  getutxocount    Alias of show-utxos\n"
+                      << "  getdatadir      Print the active data directory\n"
                       << "  getblockcount   Print current chain height (block count)\n"
                       << "  gettip          Print current tip block hash\n"
+                      << "  getdifficulty   Print current tip difficulty bits\n"
                       << "  getblockindex <hash>\n"
                       << "                 Print basic index details for a block hash\n"
                       << "  signmessage <keyid> <message>\n"
@@ -56,6 +62,16 @@ int main(int argc, char** argv) {
         } else if (cmd == "getkeycount") {
             std::cout << "Key count: " << keystore.ListKeys().size() << "\n";
             return 0;
+        } else if (cmd == "getkeyexists") {
+            if (argc < 3) {
+                std::cerr << "Usage: novacoin-cli getkeyexists <keyid>\n";
+                return 1;
+            }
+            const std::string target = argv[2];
+            const auto keys = keystore.ListKeys();
+            const bool found = std::find(keys.begin(), keys.end(), target) != keys.end();
+            std::cout << "Key exists: " << (found ? "yes" : "no") << "\n";
+            return found ? 0 : 1;
         } else if (cmd == "mine") {
             Block b;
             b.header.version = 1;
@@ -85,6 +101,12 @@ int main(int argc, char** argv) {
         } else if (cmd == "show-utxos") {
             std::cout << "UTXO count: " << chain.GetUTXO().Size() << "\n";
             return 0;
+        } else if (cmd == "getutxocount") {
+            std::cout << "UTXO count: " << chain.GetUTXO().Size() << "\n";
+            return 0;
+        } else if (cmd == "getdatadir") {
+            std::cout << "Data dir: " << cfg.data_dir << "\n";
+            return 0;
         } else if (cmd == "getblockcount") {
             std::cout << "Block count: " << chain.Height() << "\n";
             return 0;
@@ -94,6 +116,14 @@ int main(int argc, char** argv) {
                 std::cout << "Tip: none\n";
             } else {
                 std::cout << "Tip: " << tip->hash.toHex() << "\n";
+            }
+            return 0;
+        } else if (cmd == "getdifficulty") {
+            auto tip = chain.GetTip();
+            if (!tip) {
+                std::cout << "Difficulty bits: none\n";
+            } else {
+                std::cout << "Difficulty bits: " << tip->header.bits << "\n";
             }
             return 0;
         } else if (cmd == "getblockindex") {
