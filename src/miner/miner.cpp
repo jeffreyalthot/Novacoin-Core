@@ -25,8 +25,6 @@ int MineBlock(Block& block, BlockStore& store, int maxNonceTries) {
         }
         if ((n & 0xFFFFU) == 0U) {
             std::cout << "Tried nonce " << n << "...\r";
-
-";
         }
     }
     std::cout << std::endl;
