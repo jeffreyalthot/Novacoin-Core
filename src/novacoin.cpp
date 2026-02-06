@@ -44,4 +44,4 @@ void Novacoin::Stop() {
     logger_.Info("Novacoin node stopped.");
 }
 
-std::string Novacoin::Version() const { return "0.1.0-windows-mock"; }
+std::string Novacoin::Version() const { return "0.4.0-internal"; }

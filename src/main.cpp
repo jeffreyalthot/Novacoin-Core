@@ -3,15 +3,18 @@
 #include "consensus/block.h"
 #include "consensus/tx.h"
 #include "wallet/keystore.h"
+#include "consensus/merkle.h"
+#include "miner/miner.h"
 #include <iostream>
 #include <vector>
 #include <string>
+#include <fstream>
 
 int main(int argc, char** argv) {
     Config cfg = Config::Default();
     if (std::ifstream("novacoin.conf").good()) cfg.LoadFromFile("novacoin.conf");
 
-    std::cout << "Novacoin-Core (next iteration) - Windows\n";
+    std::cout << "Novacoin Core - internal fork baseline\n";
     std::cout << "Data dir: " << cfg.data_dir << "\n";
 
     Blockchain chain(cfg.data_dir);
