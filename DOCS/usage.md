@@ -26,4 +26,8 @@ Run one of the generated binaries, for example `novacoind.exe`:
 - `show-utxos`: print current UTXO count
 - `getblockcount`: print current chain height (block count)
 - `gettip`: print current tip block hash (`none` if chain is empty)
+- `getbestblockhash`: print only the tip hash (`none` if chain is empty)
+- `getblockexists <hash>`: check whether a block file exists on disk
+- `savekeys`: save the keystore to `<data_dir>/keystore.dat`
+- `loadkeys`: load the keystore from `<data_dir>/keystore.dat`
 - `help`: show available commands
