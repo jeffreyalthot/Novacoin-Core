@@ -7,7 +7,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Sources - ensure all modules are compiled
 set(SRC_FILES
     src/main.cpp
     src/novacoin.cpp
@@ -15,22 +14,18 @@ set(SRC_FILES
     src/logging.cpp
 
     src/crypto/sha256.cpp
-    src/crypto/eckey.cpp
     src/crypto/uint256.cpp
 
     src/consensus/serialize.cpp
     src/consensus/tx.cpp
     src/consensus/block.cpp
     src/consensus/merkle.cpp
-    src/consensus/compact.cpp
     src/consensus/validation.cpp
     src/consensus/utxo.cpp
     src/consensus/blockindex.cpp
     src/consensus/blockchain.cpp
 
     src/db/blockstore.cpp
-
-    src/mempool/mempool.cpp
 
     src/miner/miner.cpp
 
