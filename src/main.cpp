@@ -9,6 +9,8 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <iomanip>
+#include <sstream>
 
 int main(int argc, char** argv) {
     Config cfg = Config::Default();
@@ -29,10 +31,15 @@ int main(int argc, char** argv) {
                       << "  help            Show this help message\n"
                       << "  createkey       Generate a new key identifier\n"
                       << "  listkeys        List known key identifiers\n"
+                      << "  getkeycount     Print number of known key identifiers\n"
                       << "  mine            Mine one prototype block\n"
                       << "  show-utxos      Print current UTXO count\n"
                       << "  getblockcount   Print current chain height (block count)\n"
-                      << "  gettip          Print current tip block hash\n";
+                      << "  gettip          Print current tip block hash\n"
+                      << "  getblockindex <hash>\n"
+                      << "                 Print basic index details for a block hash\n"
+                      << "  signmessage <keyid> <message>\n"
+                      << "                 Sign a message with a known key identifier\n";
         };
 
         if (cmd == "help" || cmd == "--help" || cmd == "-h") {
@@ -45,6 +52,9 @@ int main(int argc, char** argv) {
         } else if (cmd == "listkeys") {
             auto keys = keystore.ListKeys();
             for (auto &k: keys) std::cout << k << "\n";
+            return 0;
+        } else if (cmd == "getkeycount") {
+            std::cout << "Key count: " << keystore.ListKeys().size() << "\n";
             return 0;
         } else if (cmd == "mine") {
             Block b;
@@ -85,6 +95,42 @@ int main(int argc, char** argv) {
             } else {
                 std::cout << "Tip: " << tip->hash.toHex() << "\n";
             }
+            return 0;
+        } else if (cmd == "getblockindex") {
+            if (argc < 3) {
+                std::cerr << "Usage: novacoin-cli getblockindex <hash>\n";
+                return 1;
+            }
+            auto hash = uint256::fromHex(argv[2]);
+            auto entry = chain.GetBlockIndex(hash);
+            if (!entry) {
+                std::cout << "Block index entry not found\n";
+                return 1;
+            }
+            std::cout << "Hash: " << entry->hash.toHex() << "\n"
+                      << "Height: " << entry->height << "\n"
+                      << "Bits: " << entry->header.bits << "\n";
+            return 0;
+        } else if (cmd == "signmessage") {
+            if (argc < 4) {
+                std::cerr << "Usage: novacoin-cli signmessage <keyid> <message>\n";
+                return 1;
+            }
+            const std::string keyid = argv[2];
+            std::string message = argv[3];
+            for (int i = 4; i < argc; ++i) {
+                message += " ";
+                message += argv[i];
+            }
+            auto sig = keystore.Sign(message, keyid);
+            if (sig.empty()) {
+                std::cerr << "Unknown key id: " << keyid << "\n";
+                return 1;
+            }
+            std::ostringstream hex;
+            hex << std::hex << std::setfill('0');
+            for (uint8_t b : sig) hex << std::setw(2) << static_cast<int>(b);
+            std::cout << "Signature: " << hex.str() << "\n";
             return 0;
         } else {
             std::cerr << "Unknown command: " << cmd << "\n\n";
