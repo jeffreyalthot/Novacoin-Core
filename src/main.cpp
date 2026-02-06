@@ -13,6 +13,31 @@
 #include <iomanip>
 #include <sstream>
 
+namespace {
+const std::vector<std::string> kCliCommands = {
+    "help",
+    "createkey",
+    "listkeys",
+    "getkeycount",
+    "getkeyexists",
+    "mine",
+    "show-utxos",
+    "getutxocount",
+    "getdatadir",
+    "getblockcount",
+    "gettip",
+    "getdifficulty",
+    "getblockindex",
+    "getblockexists",
+    "getbestblockhash",
+    "savekeys",
+    "loadkeys",
+    "signmessage",
+    "listcommands",
+    "getcommandcount"
+};
+}
+
 int main(int argc, char** argv) {
     Config cfg = Config::Default();
     if (std::ifstream("novacoin.conf").good()) cfg.LoadFromFile("novacoin.conf");
@@ -53,7 +78,11 @@ int main(int argc, char** argv) {
                       << "  loadkeys\n"
                       << "                 Reload keystore from <datadir>/keystore.dat\n"
                       << "  signmessage <keyid> <message>\n"
-                      << "                 Sign a message with a known key identifier\n";
+                      << "                 Sign a message with a known key identifier\n"
+                      << "  listcommands\n"
+                      << "                 List all available novacoin-cli commands\n"
+                      << "  getcommandcount\n"
+                      << "                 Print the total number of available commands\n";
         };
 
         if (cmd == "help" || cmd == "--help" || cmd == "-h") {
@@ -210,6 +239,14 @@ int main(int argc, char** argv) {
             hex << std::hex << std::setfill('0');
             for (uint8_t b : sig) hex << std::setw(2) << static_cast<int>(b);
             std::cout << "Signature: " << hex.str() << "\n";
+            return 0;
+        } else if (cmd == "listcommands") {
+            for (const auto& name : kCliCommands) {
+                std::cout << name << "\n";
+            }
+            return 0;
+        } else if (cmd == "getcommandcount") {
+            std::cout << "Command count: " << kCliCommands.size() << "\n";
             return 0;
         } else {
             std::cerr << "Unknown command: " << cmd << "\n\n";
