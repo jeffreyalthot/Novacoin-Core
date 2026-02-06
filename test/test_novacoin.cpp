@@ -39,6 +39,16 @@ int main() {
     // Miner pour test
     Miner miner(blockchain, bus, alice->getAddress());
 
+
+    // Vérification de rejet montant invalide
+    try {
+        alice->createTransaction(bob->getAddress(), 0.0, "");
+        std::cerr << "[TEST] ERROR: zero-amount transaction should have failed" << std::endl;
+        return 1;
+    } catch (const std::runtime_error&) {
+        log("TEST", "Zero-amount transaction correctly rejected.");
+    }
+
     // Ajouter transactions au mempool
     Transaction tx1 = alice->createTransaction(bob->getAddress(), 20.0, "");
     miner.addTransactionToMempool(tx1);
@@ -48,6 +58,11 @@ int main() {
 
     // Mine un bloc avec ces transactions
     miner.minePendingTransactions();
+
+    // Donner des fonds a Charlie pour la suite du scenario
+    Transaction t3("system", charlie->getAddress(), 15.0);
+    t3.signTransaction("system");
+    charlie->receiveTransaction(t3);
 
     // Ajouter d'autres transactions
     Transaction tx3 = charlie->createTransaction(alice->getAddress(), 5.0, "");
@@ -67,6 +82,12 @@ int main() {
         log("TEST", "Blockchain is valid.");
     } else {
         log("TEST", "Blockchain is INVALID!");
+    }
+
+    // Vérification simple de conservation locale du solde wallet
+    if (alice->getBalance() >= 100.0) {
+        std::cerr << "[TEST] ERROR: Alice balance did not decrease after spending." << std::endl;
+        return 1;
     }
 
     // Affichage balances finales
