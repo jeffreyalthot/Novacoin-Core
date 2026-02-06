@@ -24,3 +24,6 @@ Run one of the generated binaries, for example `novacoind.exe`:
 - `listkeys`: list known key identifiers
 - `mine`: mine one prototype block
 - `show-utxos`: print current UTXO count
+- `getblockcount`: print current chain height (block count)
+- `gettip`: print current tip block hash (`none` if chain is empty)
+- `help`: show available commands

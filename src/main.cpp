@@ -23,7 +23,22 @@ int main(int argc, char** argv) {
 
     if (argc >= 2) {
         std::string cmd = argv[1];
-        if (cmd == "createkey") {
+
+        auto printHelp = []() {
+            std::cout << "Novacoin CLI commands:\n"
+                      << "  help            Show this help message\n"
+                      << "  createkey       Generate a new key identifier\n"
+                      << "  listkeys        List known key identifiers\n"
+                      << "  mine            Mine one prototype block\n"
+                      << "  show-utxos      Print current UTXO count\n"
+                      << "  getblockcount   Print current chain height (block count)\n"
+                      << "  gettip          Print current tip block hash\n";
+        };
+
+        if (cmd == "help" || cmd == "--help" || cmd == "-h") {
+            printHelp();
+            return 0;
+        } else if (cmd == "createkey") {
             auto id = keystore.GenerateNew();
             std::cout << "New key id: " << id << "\n";
             return 0;
@@ -60,6 +75,21 @@ int main(int argc, char** argv) {
         } else if (cmd == "show-utxos") {
             std::cout << "UTXO count: " << chain.GetUTXO().Size() << "\n";
             return 0;
+        } else if (cmd == "getblockcount") {
+            std::cout << "Block count: " << chain.Height() << "\n";
+            return 0;
+        } else if (cmd == "gettip") {
+            auto tip = chain.GetTip();
+            if (!tip) {
+                std::cout << "Tip: none\n";
+            } else {
+                std::cout << "Tip: " << tip->hash.toHex() << "\n";
+            }
+            return 0;
+        } else {
+            std::cerr << "Unknown command: " << cmd << "\n\n";
+            printHelp();
+            return 1;
         }
     }
 
