@@ -29,12 +29,19 @@ double Wallet::getBalance() const {
 // Crée une transaction signée
 // ================================
 Transaction Wallet::createTransaction(const std::string& to, double amount, const std::string& privKey) {
+    if (amount <= 0.0) {
+        bus.publish("[WALLET] ERROR: Transaction amount must be positive");
+        throw std::runtime_error("Transaction amount must be positive");
+    }
+
     if (amount > balance) {
         bus.publish("[WALLET] ERROR: Insufficient balance for transaction");
         throw std::runtime_error("Insufficient balance");
     }
+
     Transaction tx(address, to, amount);
     tx.signTransaction(privKey.empty() ? privateKey : privKey);
+    balance -= amount;
     bus.publish("[WALLET] Transaction created: " + tx.txid);
     return tx;
 }
