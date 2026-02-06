@@ -44,6 +44,14 @@ int main(int argc, char** argv) {
                       << "  getdifficulty   Print current tip difficulty bits\n"
                       << "  getblockindex <hash>\n"
                       << "                 Print basic index details for a block hash\n"
+                      << "  getblockexists <hash>\n"
+                      << "                 Check if a block file exists on disk\n"
+                      << "  getbestblockhash\n"
+                      << "                 Print tip hash without label (or none)\n"
+                      << "  savekeys\n"
+                      << "                 Persist keystore to <datadir>/keystore.dat\n"
+                      << "  loadkeys\n"
+                      << "                 Reload keystore from <datadir>/keystore.dat\n"
                       << "  signmessage <keyid> <message>\n"
                       << "                 Sign a message with a known key identifier\n";
         };
@@ -131,7 +139,13 @@ int main(int argc, char** argv) {
                 std::cerr << "Usage: novacoin-cli getblockindex <hash>\n";
                 return 1;
             }
-            auto hash = uint256::fromHex(argv[2]);
+            uint256 hash;
+            try {
+                hash = uint256::fromHex(argv[2]);
+            } catch (const std::exception&) {
+                std::cerr << "Invalid block hash format (expected 64-char hex)\n";
+                return 1;
+            }
             auto entry = chain.GetBlockIndex(hash);
             if (!entry) {
                 std::cout << "Block index entry not found\n";
@@ -140,6 +154,41 @@ int main(int argc, char** argv) {
             std::cout << "Hash: " << entry->hash.toHex() << "\n"
                       << "Height: " << entry->height << "\n"
                       << "Bits: " << entry->header.bits << "\n";
+            return 0;
+        } else if (cmd == "getblockexists") {
+            if (argc < 3) {
+                std::cerr << "Usage: novacoin-cli getblockexists <hash>\n";
+                return 1;
+            }
+            uint256 hash;
+            try {
+                hash = uint256::fromHex(argv[2]);
+            } catch (const std::exception&) {
+                std::cerr << "Invalid block hash format (expected 64-char hex)\n";
+                return 1;
+            }
+            const bool exists = chain.GetBlockStore().HasBlock(hash);
+            std::cout << "Block exists: " << (exists ? "yes" : "no") << "\n";
+            return exists ? 0 : 1;
+        } else if (cmd == "getbestblockhash") {
+            auto tip = chain.GetTip();
+            std::cout << (tip ? tip->hash.toHex() : "none") << "\n";
+            return tip ? 0 : 1;
+        } else if (cmd == "savekeys") {
+            const std::string path = cfg.data_dir + "/keystore.dat";
+            if (!keystore.SaveToFile(path)) {
+                std::cerr << "Failed to save keystore: " << path << "\n";
+                return 1;
+            }
+            std::cout << "Keystore saved: " << path << "\n";
+            return 0;
+        } else if (cmd == "loadkeys") {
+            const std::string path = cfg.data_dir + "/keystore.dat";
+            if (!keystore.LoadFromFile(path)) {
+                std::cerr << "Failed to load keystore: " << path << "\n";
+                return 1;
+            }
+            std::cout << "Keystore loaded: " << path << "\n";
             return 0;
         } else if (cmd == "signmessage") {
             if (argc < 4) {
