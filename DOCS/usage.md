@@ -31,3 +31,4 @@ Run one of the generated binaries, for example `novacoind.exe`:
 - `savekeys`: save the keystore to `<data_dir>/keystore.dat`
 - `loadkeys`: load the keystore from `<data_dir>/keystore.dat`
 - `help`: show available commands
+- `verifymessage <keyid> <message> <signaturehex>`: verify a signature produced by `signmessage`

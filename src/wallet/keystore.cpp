@@ -27,6 +27,12 @@ std::vector<uint8_t> KeyStore::Sign(const std::string& msghex, const std::string
     return std::vector<uint8_t>(sig.begin(), sig.end());
 }
 
+bool KeyStore::Verify(const std::string& msghex, const std::string& pubkeyid, const std::vector<uint8_t>& signature) {
+    if (signature.empty()) return false;
+    const auto expected = Sign(msghex, pubkeyid);
+    return !expected.empty() && expected == signature;
+}
+
 std::vector<std::string> KeyStore::ListKeys() const {
     std::vector<std::string> out;
     out.reserve(keys_.size());

@@ -53,7 +53,9 @@ int main(int argc, char** argv) {
                       << "  loadkeys\n"
                       << "                 Reload keystore from <datadir>/keystore.dat\n"
                       << "  signmessage <keyid> <message>\n"
-                      << "                 Sign a message with a known key identifier\n";
+                      << "                 Sign a message with a known key identifier\n"
+                      << "  verifymessage <keyid> <message> <signaturehex>\n"
+                      << "                 Verify a signature produced by signmessage\n";
         };
 
         if (cmd == "help" || cmd == "--help" || cmd == "-h") {
@@ -211,6 +213,40 @@ int main(int argc, char** argv) {
             for (uint8_t b : sig) hex << std::setw(2) << static_cast<int>(b);
             std::cout << "Signature: " << hex.str() << "\n";
             return 0;
+
+        } else if (cmd == "verifymessage") {
+            if (argc < 5) {
+                std::cerr << "Usage: novacoin-cli verifymessage <keyid> <message> <signaturehex>\n";
+                return 1;
+            }
+            const std::string keyid = argv[2];
+            const std::string signatureHex = argv[argc - 1];
+            std::string message = argv[3];
+            for (int i = 4; i < argc - 1; ++i) {
+                message += " ";
+                message += argv[i];
+            }
+
+            if (signatureHex.size() % 2 != 0) {
+                std::cerr << "Invalid signature hex (odd length)\n";
+                return 1;
+            }
+
+            std::vector<uint8_t> signature;
+            signature.reserve(signatureHex.size() / 2);
+            try {
+                for (size_t i = 0; i < signatureHex.size(); i += 2) {
+                    const auto byte = static_cast<uint8_t>(std::stoul(signatureHex.substr(i, 2), nullptr, 16));
+                    signature.push_back(byte);
+                }
+            } catch (const std::exception&) {
+                std::cerr << "Invalid signature hex\n";
+                return 1;
+            }
+
+            const bool ok = keystore.Verify(message, keyid, signature);
+            std::cout << "Signature valid: " << (ok ? "yes" : "no") << "\n";
+            return ok ? 0 : 1;
         } else {
             std::cerr << "Unknown command: " << cmd << "\n\n";
             printHelp();
